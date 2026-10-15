@@ -1,15 +1,15 @@
-import { For, Show } from 'solid-js';
-import { DragOverlay } from '@dnd-kit/solid';
-import { Arrows } from './Arrows.js';
-import { Draggable } from './Draggable.js';
-import { Droppable } from './Droppable.js';
-import { Piece } from './Piece.js';
-import { Square } from './Square.js';
-import { useChessboardContext } from './ChessboardProvider.js';
-import { defaultBoardStyle } from './defaults.js';
+import { For, Show } from 'solid-js'
+import { DragOverlay } from '@dnd-kit/solid'
+import { Arrows } from './Arrows.js'
+import { Draggable } from './Draggable.js'
+import { Droppable } from './Droppable.js'
+import { Piece } from './Piece.js'
+import { Square } from './Square.js'
+import { useChessboardContext } from './ChessboardProvider.js'
+import { defaultBoardStyle } from './defaults.js'
 
 export function Board() {
-  const ctx = useChessboardContext();
+  const ctx = useChessboardContext()
 
   return (
     <>
@@ -21,9 +21,9 @@ export function Board() {
         }}
       >
         <For each={ctx.board()}>
-          {(row) => (
+          {row => (
             <For each={row}>
-              {(square) => (
+              {square => (
                 <Droppable squareId={square.squareId}>
                   {({ isOver }) => (
                     <Square
@@ -31,19 +31,14 @@ export function Board() {
                       isLightSquare={square.isLightSquare}
                       isOver={isOver}
                     >
-                      <Show
-                        when={ctx.currentPosition()[square.squareId]}
-                      >
-                        {(piece) => (
+                      <Show when={ctx.currentPosition()[square.squareId]}>
+                        {piece => (
                           <Draggable
                             isSparePiece={false}
                             position={square.squareId}
                             pieceType={piece().pieceType}
                           >
-                            <Piece
-                              position={square.squareId}
-                              pieceType={piece().pieceType}
-                            />
+                            <Piece position={square.squareId} pieceType={piece().pieceType} />
                           </Draggable>
                         )}
                       </Show>
@@ -60,15 +55,11 @@ export function Board() {
 
       <DragOverlay dropAnimation={null}>
         <Show when={ctx.draggingPiece()}>
-          {(dragging) => (
-            <Piece
-              clone
-              position={dragging().position}
-              pieceType={dragging().pieceType}
-            />
+          {dragging => (
+            <Piece clone position={dragging().position} pieceType={dragging().pieceType} />
           )}
         </Show>
       </DragOverlay>
     </>
-  );
+  )
 }

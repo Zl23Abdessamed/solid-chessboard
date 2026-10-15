@@ -1,27 +1,23 @@
-import { createEffect, createMemo, createSignal } from 'solid-js';
-import type { JSX } from 'solid-js';
-import { useChessboardContext } from './ChessboardProvider.js';
-import type { DraggingPieceDataType, PieceDataType } from './types.js';
-import {
-  defaultDraggingPieceGhostStyle,
-  defaultDraggingPieceStyle,
-} from './defaults.js';
+import { createEffect, createMemo, createSignal } from 'solid-js'
+import type { JSX } from 'solid-js'
+import { useChessboardContext } from './ChessboardProvider.js'
+import type { DraggingPieceDataType, PieceDataType } from './types.js'
+import { defaultDraggingPieceGhostStyle, defaultDraggingPieceStyle } from './defaults.js'
 
 type PieceProps = {
-  clone?: boolean;
-  isSparePiece?: DraggingPieceDataType['isSparePiece'];
-  position: DraggingPieceDataType['position'];
-  pieceType: PieceDataType['pieceType'];
-};
+  clone?: boolean
+  isSparePiece?: DraggingPieceDataType['isSparePiece']
+  position: DraggingPieceDataType['position']
+  pieceType: PieceDataType['pieceType']
+}
 
 export function Piece(props: PieceProps) {
-  const ctx = useChessboardContext();
+  const ctx = useChessboardContext()
 
-  const [animationStyle, setAnimationStyle] =
-    createSignal<JSX.CSSProperties>({});
+  const [animationStyle, setAnimationStyle] = createSignal<JSX.CSSProperties>({})
 
   const cursor = createMemo(() => {
-    if (props.clone) return 'grabbing';
+    if (props.clone) return 'grabbing'
     if (
       !ctx.options.allowDragging ||
       (ctx.options.canDragPiece &&
@@ -31,30 +27,30 @@ export function Piece(props: PieceProps) {
           square: props.position,
         }))
     ) {
-      return 'pointer';
+      return 'pointer'
     }
-    return 'grab';
-  });
+    return 'grab'
+  })
 
   // DOM measurement only runs in effects, never during SSR.
   createEffect(() => {
-    const targetSquare = ctx.positionDifferences()[props.position];
+    const targetSquare = ctx.positionDifferences()[props.position]
     if (!targetSquare) {
-      setAnimationStyle({});
-      return;
+      setAnimationStyle({})
+      return
     }
 
-    if (typeof document === 'undefined') return;
+    if (typeof document === 'undefined') return
 
-    const sourceSquare = props.position;
+    const sourceSquare = props.position
     const squareWidth = document
       .querySelector(`#${ctx.options.id}-square-${sourceSquare}`)
-      ?.getBoundingClientRect().width;
+      ?.getBoundingClientRect().width
 
-    if (!squareWidth) return;
+    if (!squareWidth) return
 
-    const orientation = ctx.options.boardOrientation;
-    const duration = ctx.options.animationDurationInMs;
+    const orientation = ctx.options.boardOrientation
+    const duration = ctx.options.animationDurationInMs
 
     setAnimationStyle({
       transform: `translate(${
@@ -69,8 +65,8 @@ export function Piece(props: PieceProps) {
       transition: `transform ${duration}ms`,
       position: 'relative',
       'z-index': 10,
-    });
-  });
+    })
+  })
 
   return (
     <div
@@ -84,8 +80,7 @@ export function Piece(props: PieceProps) {
               ...ctx.options.draggingPieceStyle,
             }
           : {}),
-        ...(!props.clone &&
-        ctx.draggingPiece()?.position === props.position
+        ...(!props.clone && ctx.draggingPiece()?.position === props.position
           ? {
               ...defaultDraggingPieceGhostStyle,
               ...ctx.options.draggingPieceGhostStyle,
@@ -105,9 +100,9 @@ export function Piece(props: PieceProps) {
       }
     >
       {(() => {
-        const PieceSvg = ctx.options.pieces[props.pieceType];
-        return PieceSvg ? <PieceSvg square={props.position} /> : null;
+        const PieceSvg = ctx.options.pieces[props.pieceType]
+        return PieceSvg ? <PieceSvg square={props.position} /> : null
       })()}
     </div>
-  );
+  )
 }

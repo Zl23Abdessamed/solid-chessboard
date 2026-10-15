@@ -8,20 +8,17 @@ import {
   onCleanup,
   untrack,
   useContext,
-} from 'solid-js';
-import type { Accessor, JSX } from 'solid-js';
-import {
-  DragDropProvider,
-  KeyboardSensor,
-} from '@dnd-kit/solid';
-import type { DragEndEvent, DragStartEvent } from '@dnd-kit/abstract';
-import { AutoScroller, PointerActivationConstraints } from '@dnd-kit/dom';
+} from 'solid-js'
+import type { Accessor, JSX } from 'solid-js'
+import { DragDropProvider, KeyboardSensor } from '@dnd-kit/solid'
+import type { DragEndEvent, DragStartEvent } from '@dnd-kit/abstract'
+import { AutoScroller, PointerActivationConstraints } from '@dnd-kit/dom'
 import {
   fenStringToPositionObject,
   generateBoard,
   getPositionUpdates,
   getPromotionUpdates,
-} from './utils.js';
+} from './utils.js'
 import type {
   Arrow,
   ArrowModifiers,
@@ -32,8 +29,8 @@ import type {
   PositionDataType,
   SquareHandlerArgs,
   SquareRenderer,
-} from './types.js';
-import { defaultPieces } from './pieces.js';
+} from './types.js'
+import { defaultPieces } from './pieces.js'
 import {
   defaultAlphaNotationStyle,
   defaultArrowOptions,
@@ -46,84 +43,74 @@ import {
   defaultLightSquareStyle,
   defaultNumericNotationStyle,
   defaultSquareStyle,
-} from './defaults.js';
-import { RightClickCancelSensor } from './RightClickCancelSensor.js';
-import { preventDragOffBoard } from './modifiers.js';
+} from './defaults.js'
+import { RightClickCancelSensor } from './RightClickCancelSensor.js'
+import { preventDragOffBoard } from './modifiers.js'
 
-const START_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR';
+const START_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR'
 
 export type ChessboardOptions = {
   // id
-  id?: string;
+  id?: string
 
   // pieces and position
-  pieces?: PieceRenderObject;
-  position?: string | PositionDataType;
+  pieces?: PieceRenderObject
+  position?: string | PositionDataType
 
   // board dimensions and orientation
-  boardOrientation?: 'white' | 'black';
-  chessboardRows?: number;
-  chessboardColumns?: number;
+  boardOrientation?: 'white' | 'black'
+  chessboardRows?: number
+  chessboardColumns?: number
 
   // board and squares styles
-  boardStyle?: JSX.CSSProperties;
-  squareStyle?: JSX.CSSProperties;
-  squareStyles?: Record<string, JSX.CSSProperties>;
-  darkSquareStyle?: JSX.CSSProperties;
-  lightSquareStyle?: JSX.CSSProperties;
-  dropSquareStyle?: JSX.CSSProperties;
-  draggingPieceStyle?: JSX.CSSProperties;
-  draggingPieceGhostStyle?: JSX.CSSProperties;
+  boardStyle?: JSX.CSSProperties
+  squareStyle?: JSX.CSSProperties
+  squareStyles?: Record<string, JSX.CSSProperties>
+  darkSquareStyle?: JSX.CSSProperties
+  lightSquareStyle?: JSX.CSSProperties
+  dropSquareStyle?: JSX.CSSProperties
+  draggingPieceStyle?: JSX.CSSProperties
+  draggingPieceGhostStyle?: JSX.CSSProperties
 
   // notation
-  darkSquareNotationStyle?: JSX.CSSProperties;
-  lightSquareNotationStyle?: JSX.CSSProperties;
-  alphaNotationStyle?: JSX.CSSProperties;
-  numericNotationStyle?: JSX.CSSProperties;
-  showNotation?: boolean;
+  darkSquareNotationStyle?: JSX.CSSProperties
+  lightSquareNotationStyle?: JSX.CSSProperties
+  alphaNotationStyle?: JSX.CSSProperties
+  numericNotationStyle?: JSX.CSSProperties
+  showNotation?: boolean
 
   // animation
-  animationDurationInMs?: number;
-  showAnimations?: boolean;
+  animationDurationInMs?: number
+  showAnimations?: boolean
 
   // drag and drop
-  allowDragging?: boolean;
-  allowDragOffBoard?: boolean;
-  allowAutoScroll?: boolean;
-  dragActivationDistance?: number;
+  allowDragging?: boolean
+  allowDragOffBoard?: boolean
+  allowAutoScroll?: boolean
+  dragActivationDistance?: number
 
   // arrows
-  allowDrawingArrows?: boolean;
-  arrows?: Arrow[];
-  arrowOptions?: typeof defaultArrowOptions;
-  clearArrowsOnClick?: boolean;
-  clearArrowsOnPositionChange?: boolean;
+  allowDrawingArrows?: boolean
+  arrows?: Arrow[]
+  arrowOptions?: typeof defaultArrowOptions
+  clearArrowsOnClick?: boolean
+  clearArrowsOnPositionChange?: boolean
 
   // handlers
-  canDragPiece?: ({ isSparePiece, piece, square }: PieceHandlerArgs) => boolean;
-  onArrowsChange?: ({ arrows }: { arrows: Arrow[] }) => void;
-  onMouseOutSquare?: ({ piece, square }: SquareHandlerArgs) => void;
-  onMouseOverSquare?: ({ piece, square }: SquareHandlerArgs) => void;
-  onPieceClick?: ({ isSparePiece, piece, square }: PieceHandlerArgs) => void;
-  onPieceDrag?: ({ isSparePiece, piece, square }: PieceHandlerArgs) => void;
-  onPieceDragCancel?: () => void;
-  onPieceDrop?: ({
-    piece,
-    sourceSquare,
-    targetSquare,
-  }: PieceDropHandlerArgs) => boolean;
-  onSquareClick?: ({ piece, square }: SquareHandlerArgs) => void;
-  onSquareMouseDown?: (
-    { piece, square }: SquareHandlerArgs,
-    e: MouseEvent,
-  ) => void;
-  onSquareMouseUp?: (
-    { piece, square }: SquareHandlerArgs,
-    e: MouseEvent,
-  ) => void;
-  onSquareRightClick?: ({ piece, square }: SquareHandlerArgs) => void;
-  squareRenderer?: SquareRenderer;
-};
+  canDragPiece?: ({ isSparePiece, piece, square }: PieceHandlerArgs) => boolean
+  onArrowsChange?: ({ arrows }: { arrows: Arrow[] }) => void
+  onMouseOutSquare?: ({ piece, square }: SquareHandlerArgs) => void
+  onMouseOverSquare?: ({ piece, square }: SquareHandlerArgs) => void
+  onPieceClick?: ({ isSparePiece, piece, square }: PieceHandlerArgs) => void
+  onPieceDrag?: ({ isSparePiece, piece, square }: PieceHandlerArgs) => void
+  onPieceDragCancel?: () => void
+  onPieceDrop?: ({ piece, sourceSquare, targetSquare }: PieceDropHandlerArgs) => boolean
+  onSquareClick?: ({ piece, square }: SquareHandlerArgs) => void
+  onSquareMouseDown?: ({ piece, square }: SquareHandlerArgs, e: MouseEvent) => void
+  onSquareMouseUp?: ({ piece, square }: SquareHandlerArgs, e: MouseEvent) => void
+  onSquareRightClick?: ({ piece, square }: SquareHandlerArgs) => void
+  squareRenderer?: SquareRenderer
+}
 
 /** Callbacks that remain optional after defaults are merged in. */
 type OptionalCallbackKeys =
@@ -139,55 +126,46 @@ type OptionalCallbackKeys =
   | 'onSquareMouseDown'
   | 'onSquareMouseUp'
   | 'onSquareRightClick'
-  | 'squareRenderer';
+  | 'squareRenderer'
 
-export type ResolvedChessboardOptions = Omit<
-  Required<ChessboardOptions>,
-  OptionalCallbackKeys
-> &
-  Pick<ChessboardOptions, OptionalCallbackKeys>;
+export type ResolvedChessboardOptions = Omit<Required<ChessboardOptions>, OptionalCallbackKeys> &
+  Pick<ChessboardOptions, OptionalCallbackKeys>
 
 export type ChessboardContextType = {
   // resolved options (reactive getters produced by mergeProps).
   // Style/geometry fields are always defined via defaults; callbacks stay
   // optional as in `ChessboardOptions` (nothing invokes them when absent).
-  options: ResolvedChessboardOptions;
+  options: ResolvedChessboardOptions
 
   // live state (accessors)
-  isWrapped: true;
-  board: Accessor<SquareDataType[][]>;
-  currentPosition: Accessor<PositionDataType>;
-  draggingPiece: Accessor<DraggingPieceDataType | null>;
-  positionDifferences: Accessor<Record<string, string>>;
-  newArrowStartSquare: Accessor<string | null>;
-  newArrowOverSquare: Accessor<{ square: string; color: string } | null>;
-  internalArrows: Accessor<Arrow[]>;
+  isWrapped: true
+  board: Accessor<SquareDataType[][]>
+  currentPosition: Accessor<PositionDataType>
+  draggingPiece: Accessor<DraggingPieceDataType | null>
+  positionDifferences: Accessor<Record<string, string>>
+  newArrowStartSquare: Accessor<string | null>
+  newArrowOverSquare: Accessor<{ square: string; color: string } | null>
+  internalArrows: Accessor<Arrow[]>
 
   // actions
-  setNewArrowStartSquare: (square: string | null) => void;
-  setNewArrowOverSquare: (
-    square: string | null,
-    modifiers?: ArrowModifiers,
-  ) => void;
-  drawArrow: (endSquare: string, modifiers?: ArrowModifiers) => void;
-  clearArrows: () => void;
-};
-
-type SquareDataType = {
-  squareId: string;
-  isLightSquare: boolean;
-};
-
-const ChessboardContext = createContext<ChessboardContextType | null>(null);
-
-export function useChessboardContext() {
-  return useContext(ChessboardContext) as ChessboardContextType;
+  setNewArrowStartSquare: (square: string | null) => void
+  setNewArrowOverSquare: (square: string | null, modifiers?: ArrowModifiers) => void
+  drawArrow: (endSquare: string, modifiers?: ArrowModifiers) => void
+  clearArrows: () => void
 }
 
-export function ChessboardProvider(props: {
-  children: JSX.Element;
-  options?: ChessboardOptions;
-}) {
+type SquareDataType = {
+  squareId: string
+  isLightSquare: boolean
+}
+
+const ChessboardContext = createContext<ChessboardContextType | null>(null)
+
+export function useChessboardContext() {
+  return useContext(ChessboardContext) as ChessboardContextType
+}
+
+export function ChessboardProvider(props: { children: JSX.Element; options?: ChessboardOptions }) {
   // NOTE: the source is a function (not a plain object) so `mergeProps`
   // memoizes it and re-reads `props.options` on every access. A plain-object
   // source would freeze the first `position` forever, since component setup
@@ -226,112 +204,93 @@ export function ChessboardProvider(props: {
       clearArrowsOnPositionChange: true,
     } as unknown as ResolvedChessboardOptions,
     () => props.options ?? {},
-  ) as ResolvedChessboardOptions;
+  ) as ResolvedChessboardOptions
 
   const toPositionObject = (pos: string | PositionDataType) =>
     typeof pos === 'string'
-      ? fenStringToPositionObject(
-          pos,
-          options.chessboardRows,
-          options.chessboardColumns,
-        )
-      : pos;
+      ? fenStringToPositionObject(pos, options.chessboardRows, options.chessboardColumns)
+      : pos
 
   // the piece currently being dragged
-  const [draggingPiece, setDraggingPiece] =
-    createSignal<DraggingPieceDataType | null>(null);
+  const [draggingPiece, setDraggingPiece] = createSignal<DraggingPieceDataType | null>(null)
 
   // the current position of pieces on the chessboard
   const [currentPosition, setCurrentPosition] = createSignal<PositionDataType>(
     toPositionObject(untrack(() => options.position)),
-  );
+  )
 
   // calculated differences between current and incoming positions
-  const [positionDifferences, setPositionDifferences] = createSignal<
-    Record<string, string>
-  >({});
+  const [positionDifferences, setPositionDifferences] = createSignal<Record<string, string>>({})
 
   // if the latest move was a manual drop
-  const [manuallyDroppedPieceAndSquare, setManuallyDroppedPieceAndSquare] =
-    createSignal<{
-      piece: string;
-      sourceSquare: string;
-      targetSquare: string;
-    } | null>(null);
+  const [manuallyDroppedPieceAndSquare, setManuallyDroppedPieceAndSquare] = createSignal<{
+    piece: string
+    sourceSquare: string
+    targetSquare: string
+  } | null>(null)
 
   // arrows
-  const [newArrowStartSquare, setNewArrowStartSquare] =
-    createSignal<string | null>(null);
+  const [newArrowStartSquare, setNewArrowStartSquare] = createSignal<string | null>(null)
   const [newArrowOverSquare, setNewArrowOverSquare] = createSignal<{
-    square: string;
-    color: string;
-  } | null>(null);
-  const [internalArrows, setInternalArrows] = createSignal<Arrow[]>([]);
+    square: string
+    color: string
+  } | null>(null)
+  const [internalArrows, setInternalArrows] = createSignal<Arrow[]>([])
 
   // position we are animating to
   const [waitingForAnimationPosition, setWaitingForAnimationPosition] =
-    createSignal<PositionDataType | null>(null);
+    createSignal<PositionDataType | null>(null)
 
   // only redraw the board when the dimensions or board orientation change
   const board = createMemo(() =>
-    generateBoard(
-      options.chessboardRows,
-      options.chessboardColumns,
-      options.boardOrientation,
-    ),
-  );
+    generateBoard(options.chessboardRows, options.chessboardColumns, options.boardOrientation),
+  )
 
   const resolveArrowColor = (modifiers?: ArrowModifiers) => {
-    const arrowOptions = options.arrowOptions;
+    const arrowOptions = options.arrowOptions
     // `colors` ships in the defaults, but the legacy shape
     // (color/secondaryColor/tertiaryColor without `colors`) is still accepted
     // at runtime, so this check is intentional.
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (arrowOptions.colors) {
-      if (modifiers?.altKey && arrowOptions.colors.alt)
-        return arrowOptions.colors.alt;
-      if (modifiers?.shiftKey && arrowOptions.colors.shift)
-        return arrowOptions.colors.shift;
-      if (modifiers?.ctrlKey && arrowOptions.colors.ctrl)
-        return arrowOptions.colors.ctrl;
-      if (modifiers?.metaKey && arrowOptions.colors.meta)
-        return arrowOptions.colors.meta;
-      return arrowOptions.colors.default || arrowOptions.color;
+      if (modifiers?.altKey && arrowOptions.colors.alt) return arrowOptions.colors.alt
+      if (modifiers?.shiftKey && arrowOptions.colors.shift) return arrowOptions.colors.shift
+      if (modifiers?.ctrlKey && arrowOptions.colors.ctrl) return arrowOptions.colors.ctrl
+      if (modifiers?.metaKey && arrowOptions.colors.meta) return arrowOptions.colors.meta
+      return arrowOptions.colors.default || arrowOptions.color
     }
     // legacy fallback
     return modifiers?.shiftKey
       ? arrowOptions.secondaryColor
       : modifiers?.ctrlKey
-        ? arrowOptions.tertiaryColor
-        : arrowOptions.color;
-  };
+      ? arrowOptions.tertiaryColor
+      : arrowOptions.color
+  }
 
   const drawArrow = (newArrowEndSquare: string, modifiers?: ArrowModifiers) => {
-    if (!options.allowDrawingArrows) return;
-    const start = newArrowStartSquare();
-    if (!start || start === newArrowEndSquare) return;
+    if (!options.allowDrawingArrows) return
+    const start = newArrowStartSquare()
+    if (!start || start === newArrowEndSquare) return
 
-    const externalArrows = options.arrows;
-    const current = internalArrows();
+    const externalArrows = options.arrows
+    const current = internalArrows()
 
     const arrowExistsIndex = current.findIndex(
-      (arrow) =>
-        arrow.startSquare === start && arrow.endSquare === newArrowEndSquare,
-    );
+      arrow => arrow.startSquare === start && arrow.endSquare === newArrowEndSquare,
+    )
     const arrowExistsExternally = externalArrows.some(
-      (arrow) =>
-        arrow.startSquare === start && arrow.endSquare === newArrowEndSquare,
-    );
+      arrow => arrow.startSquare === start && arrow.endSquare === newArrowEndSquare,
+    )
 
     // if the arrow already exists externally, don't add it internally
     if (arrowExistsExternally) {
-      setNewArrowStartSquare(null);
-      setNewArrowOverSquare(null);
-      return;
+      setNewArrowStartSquare(null)
+      setNewArrowOverSquare(null)
+      return
     }
 
-    const arrowColor = resolveArrowColor(modifiers);
-    setInternalArrows((prev) =>
+    const arrowColor = resolveArrowColor(modifiers)
+    setInternalArrows(prev =>
       arrowExistsIndex === -1
         ? [
             ...prev,
@@ -342,66 +301,63 @@ export function ChessboardProvider(props: {
             },
           ]
         : prev.filter((_, index) => index !== arrowExistsIndex),
-    );
-    setNewArrowStartSquare(null);
-    setNewArrowOverSquare(null);
-  };
+    )
+    setNewArrowStartSquare(null)
+    setNewArrowOverSquare(null)
+  }
 
   const clearArrows = () => {
     if (options.clearArrowsOnClick) {
-      setInternalArrows([]);
-      setNewArrowStartSquare(null);
-      setNewArrowOverSquare(null);
+      setInternalArrows([])
+      setNewArrowStartSquare(null)
+      setNewArrowOverSquare(null)
     }
-  };
+  }
 
   const setNewArrowOverSquareWithModifiers = (
     square: string | null,
     modifiers?: ArrowModifiers,
   ) => {
     if (square) {
-      setNewArrowOverSquare({ square, color: resolveArrowColor(modifiers) });
+      setNewArrowOverSquare({ square, color: resolveArrowColor(modifiers) })
     } else {
-      setNewArrowOverSquare(null);
+      setNewArrowOverSquare(null)
     }
-  };
+  }
 
   // if the position changes, animate to the new position
   createEffect(
     on(
       () => options.position,
-      (position) => {
-        const newPosition = toPositionObject(position);
+      position => {
+        const newPosition = toPositionObject(position)
 
         // clear internal arrows on position change
         if (untrack(() => options.clearArrowsOnPositionChange)) {
-          untrack(clearArrows);
+          untrack(clearArrows)
         }
 
         // if no animation, just set the position
         if (!untrack(() => options.showAnimations)) {
-          setCurrentPosition(newPosition);
-          return;
+          setCurrentPosition(newPosition)
+          return
         }
 
-        const animationDurationInMs = untrack(
-          () => options.animationDurationInMs,
-        );
-        const chessboardColumns = untrack(() => options.chessboardColumns);
-        const chessboardRows = untrack(() => options.chessboardRows);
-        const boardOrientation = untrack(() => options.boardOrientation);
+        const animationDurationInMs = untrack(() => options.animationDurationInMs)
+        const chessboardColumns = untrack(() => options.chessboardColumns)
+        const chessboardRows = untrack(() => options.chessboardRows)
+        const boardOrientation = untrack(() => options.boardOrientation)
 
         // save copy of the waiting position so we can use it but clear it
-        const currentWaitingForAnimationPosition =
-          waitingForAnimationPosition();
+        const currentWaitingForAnimationPosition = waitingForAnimationPosition()
 
         // if we are waiting for an animation to complete, end it immediately
         if (currentWaitingForAnimationPosition) {
-          setCurrentPosition(currentWaitingForAnimationPosition);
-          setWaitingForAnimationPosition(null);
+          setCurrentPosition(currentWaitingForAnimationPosition)
+          setWaitingForAnimationPosition(null)
         }
 
-        const base = currentWaitingForAnimationPosition ?? currentPosition();
+        const base = currentWaitingForAnimationPosition ?? currentPosition()
 
         // get list of position updates as pieces to potentially animate
         const positionUpdates = getPositionUpdates(
@@ -409,41 +365,41 @@ export function ChessboardProvider(props: {
           newPosition,
           chessboardColumns,
           boardOrientation,
-        );
+        )
 
-        const multiplePiecesMoved = Object.keys(positionUpdates).length > 1;
-        const manual = manuallyDroppedPieceAndSquare();
+        const multiplePiecesMoved = Object.keys(positionUpdates).length > 1
+        const manual = manuallyDroppedPieceAndSquare()
 
         // manually dropped piece caused multiple pieces to move (e.g. castling)
         if (manual && multiplePiecesMoved) {
           // create a new position with just the dropped piece moved
-          const intermediatePosition = { ...currentPosition() };
-          delete intermediatePosition[manual.sourceSquare];
+          const intermediatePosition = { ...currentPosition() }
+          delete intermediatePosition[manual.sourceSquare]
           intermediatePosition[manual.targetSquare] = {
             pieceType: manual.piece,
-          };
-          setCurrentPosition(intermediatePosition);
+          }
+          setCurrentPosition(intermediatePosition)
 
           // create position differences with only the other pieces' movements
-          const otherPiecesUpdates = { ...positionUpdates };
-          delete otherPiecesUpdates[manual.sourceSquare];
-          setPositionDifferences(otherPiecesUpdates);
+          const otherPiecesUpdates = { ...positionUpdates }
+          delete otherPiecesUpdates[manual.sourceSquare]
+          setPositionDifferences(otherPiecesUpdates)
 
           const timer = setTimeout(() => {
-            setCurrentPosition(newPosition);
-            setPositionDifferences({});
-            setManuallyDroppedPieceAndSquare(null);
-          }, animationDurationInMs);
-          onCleanup(() => clearTimeout(timer));
-          return;
+            setCurrentPosition(newPosition)
+            setPositionDifferences({})
+            setManuallyDroppedPieceAndSquare(null)
+          }, animationDurationInMs)
+          onCleanup(() => clearTimeout(timer))
+          return
         }
 
         // new position was a result of a manual drop
         if (manual) {
           // no animation needed, just set the position and reset the flag
-          setCurrentPosition(newPosition);
-          setManuallyDroppedPieceAndSquare(null);
-          return;
+          setCurrentPosition(newPosition)
+          setManuallyDroppedPieceAndSquare(null)
+          return
         }
 
         if (Object.keys(positionUpdates).length === 0) {
@@ -452,90 +408,85 @@ export function ChessboardProvider(props: {
             newPosition,
             chessboardRows,
             chessboardColumns,
-          );
+          )
           if (Object.keys(promotionUpdates).length === 1) {
-            setPositionDifferences(promotionUpdates);
-            setWaitingForAnimationPosition(newPosition);
+            setPositionDifferences(promotionUpdates)
+            setWaitingForAnimationPosition(newPosition)
 
             const timer = setTimeout(() => {
-              setCurrentPosition(newPosition);
-              setPositionDifferences({});
-              setWaitingForAnimationPosition(null);
-            }, animationDurationInMs);
-            onCleanup(() => clearTimeout(timer));
-            return;
+              setCurrentPosition(newPosition)
+              setPositionDifferences({})
+              setWaitingForAnimationPosition(null)
+            }, animationDurationInMs)
+            onCleanup(() => clearTimeout(timer))
+            return
           }
         }
 
         // new position was a result of an external move
-        setPositionDifferences(positionUpdates);
-        setWaitingForAnimationPosition(newPosition);
+        setPositionDifferences(positionUpdates)
+        setWaitingForAnimationPosition(newPosition)
 
         const timer = setTimeout(() => {
-          setCurrentPosition(newPosition);
-          setPositionDifferences({});
-          setWaitingForAnimationPosition(null);
-        }, animationDurationInMs);
-        onCleanup(() => clearTimeout(timer));
+          setCurrentPosition(newPosition)
+          setPositionDifferences({})
+          setWaitingForAnimationPosition(null)
+        }, animationDurationInMs)
+        onCleanup(() => clearTimeout(timer))
       },
       { defer: true },
     ),
-  );
+  )
 
   // if the dimensions change, recreate the position
   createEffect(
     on(
-      () => [
-        options.chessboardRows,
-        options.chessboardColumns,
-        options.boardOrientation,
-      ],
+      () => [options.chessboardRows, options.chessboardColumns, options.boardOrientation],
       () => {
-        setCurrentPosition(toPositionObject(untrack(() => options.position)));
+        setCurrentPosition(toPositionObject(untrack(() => options.position)))
       },
       { defer: true },
     ),
-  );
+  )
 
   // if the arrows change, call the onArrowsChange callback
   createEffect(() => {
-    const arrows = internalArrows();
-    untrack(() => options.onArrowsChange)?.({ arrows });
-  });
+    const arrows = internalArrows()
+    untrack(() => options.onArrowsChange)?.({ arrows })
+  })
 
   const handleDragStart = (event: DragStartEvent) => {
-    const source = event.operation.source;
-    if (!source) return;
+    const source = event.operation.source
+    if (!source) return
     const data = source.data as unknown as
       | { isSparePiece?: boolean; pieceType?: string }
-      | undefined;
-    const isSparePiece = data?.isSparePiece ?? false;
-    const id = String(source.id);
-    const pieceType =
-      data?.pieceType ?? currentPosition()[id]?.pieceType ?? id;
+      | undefined
+    const isSparePiece = data?.isSparePiece ?? false
+    const id = String(source.id)
+    const pieceType = data?.pieceType ?? currentPosition()[id]?.pieceType ?? id
 
     untrack(() => options.onPieceDrag)?.({
       isSparePiece,
-      piece: isSparePiece ? { pieceType: id } : (currentPosition()[id] ?? { pieceType }),
+      piece: isSparePiece ? { pieceType: id } : currentPosition()[id] ?? { pieceType },
       square: isSparePiece ? null : id,
-    });
+    })
 
-    setDraggingPiece({ isSparePiece, position: id, pieceType });
-  };
+    setDraggingPiece({ isSparePiece, position: id, pieceType })
+  }
 
   const handleDragEnd = (event: DragEndEvent) => {
     // drag was cancelled (e.g. Escape or right-click) — reset without dropping
     if (event.canceled) {
-      setDraggingPiece(null);
-      untrack(() => options.onPieceDragCancel)?.();
-      return;
+      setDraggingPiece(null)
+      untrack(() => options.onPieceDragCancel)?.()
+      return
     }
 
-    const dragging = draggingPiece();
-    if (!dragging) return;
+    const dragging = draggingPiece()
+    if (!dragging) return
 
-    const target = event.operation.target;
-    const dropSquare = target ? String(target.id) : null;
+    const target = event.operation.target
+    const dropSquare = target ? String(target.id) : null
 
     // dropped outside of droppable area (e.g. off board)
     if (!dropSquare) {
@@ -543,22 +494,22 @@ export function ChessboardProvider(props: {
         piece: dragging,
         sourceSquare: dragging.position,
         targetSquare: null,
-      });
+      })
       // set as manually dropped piece so that no animation is shown
       setManuallyDroppedPieceAndSquare({
         piece: dragging.pieceType,
         sourceSquare: dragging.position,
         targetSquare: '',
-      });
-      setDraggingPiece(null);
-      return;
+      })
+      setDraggingPiece(null)
+      return
     }
 
     const isDropValid = untrack(() => options.onPieceDrop)?.({
       piece: dragging,
       sourceSquare: dragging.position,
       targetSquare: dropSquare,
-    });
+    })
 
     // if the drop is valid, set the manually dropped piece and square
     if (isDropValid) {
@@ -566,10 +517,10 @@ export function ChessboardProvider(props: {
         piece: dragging.pieceType,
         sourceSquare: dragging.position,
         targetSquare: dropSquare,
-      });
+      })
     }
-    setDraggingPiece(null);
-  };
+    setDraggingPiece(null)
+  }
 
   // Sensors: right-button (button 2) never starts a drag so right-drag can
   // draw arrows; keyboard sensor stays enabled for a11y.
@@ -590,16 +541,14 @@ export function ChessboardProvider(props: {
       preventActivation: (event: PointerEvent) => event.button === 2,
     }),
     KeyboardSensor,
-  ];
+  ]
 
   // Same stability requirement as `sensors` above: computed once.
   // `allowDragOffBoard` toggles at runtime are not supported (documented);
   // the dragging position stays live via the getter.
   const modifiers = options.allowDragOffBoard
     ? []
-    : [
-        preventDragOffBoard(options.id, () => draggingPiece()?.position ?? ''),
-      ];
+    : [preventDragOffBoard(options.id, () => draggingPiece()?.position ?? '')]
 
   const contextValue: ChessboardContextType = {
     options,
@@ -615,18 +564,18 @@ export function ChessboardProvider(props: {
     setNewArrowOverSquare: setNewArrowOverSquareWithModifiers,
     drawArrow,
     clearArrows,
-  };
+  }
 
   return (
     <ChessboardContext.Provider value={contextValue}>
       <DragDropProvider
         sensors={sensors}
         modifiers={modifiers}
-        plugins={(defaults) =>
+        plugins={defaults =>
           // `allowAutoScroll: false` removes the default AutoScroller plugin.
           untrack(() => options.allowAutoScroll)
             ? defaults
-            : defaults.filter((p) => p !== AutoScroller)
+            : defaults.filter(p => p !== AutoScroller)
         }
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
@@ -634,5 +583,5 @@ export function ChessboardProvider(props: {
         {props.children}
       </DragDropProvider>
     </ChessboardContext.Provider>
-  );
+  )
 }
