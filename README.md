@@ -1,38 +1,47 @@
 <p>
-  <img width="100%" src="https://assets.solidjs.com/banner?type={{name_of_lib}}&background=tiles&project=%20" alt="{{name_of_lib}}">
+  <img width="100%" src="https://assets.solidjs.com/banner?type=solid-chessboard&background=tiles&project=%20" alt="solid-chessboard">
 </p>
 
-# {{name_of_lib}}
+# solid-chessboard
 
-[![pnpm](https://img.shields.io/badge/maintained%20with-pnpm-cc00ff.svg?style=for-the-badge&logo=pnpm)](https://pnpm.io/)
+[![npm](https://img.shields.io/badge/maintained%20with-npm-cc00ff.svg?style=for-the-badge&logo=npm)](https://www.npmjs.com/)
 
-{{desc_of_lib}}
-
-> **Note** After using this template, you have to search and replace all `{{name_of_lib}}` and similar strings
-> with appropriate texts.
->
-> `{{name_of_lib}}` should be a **kebab-case** string representing the name of you monorepo.
->
-> `{{desc_of_lib}}` should be a **Normal case** string with the description of the repository.
->
-> `{{me}}` should be a **kebab-case** string from your profile URL.
+A highly customizable, performant drag-and-drop chessboard component for SolidJS: based on react-chessboard
 
 ## Quick start
 
 Install it:
 
 ```bash
-npm i {{name_of_lib}}
-# or
-yarn add {{name_of_lib}}
-# or
-pnpm add {{name_of_lib}}
+npm i solid-chessboard
 ```
 
 Use it:
 
 ```tsx
-import {{name_of_lib}} from '{{name_of_lib}}'
+import { createSignal } from 'solid-js';
+import { Chess } from 'chess.js';
+import { Chessboard } from 'solid-chessboard';
+import type { PieceDropHandlerArgs } from 'solid-chessboard';
+
+function App() {
+  // chess.js is mutable, so keep the FEN string (not the instance) in a signal
+  const chess = new Chess();
+  const [position, setPosition] = createSignal(chess.fen());
+
+  const onPieceDrop = ({ sourceSquare, targetSquare }: PieceDropHandlerArgs) => {
+    if (!targetSquare) return false; // dropped off-board
+    try {
+      chess.move({ from: sourceSquare, to: targetSquare, promotion: 'q' });
+      setPosition(chess.fen());
+      return true;
+    } catch {
+      return false; // illegal move, piece snaps back
+    }
+  };
+
+  return <Chessboard options={{ position: position(), onPieceDrop }} />;
+}
 ```
 
 ## This project was created with the [Solid CLI](https://github.com/solidjs-community/solid-cli)
