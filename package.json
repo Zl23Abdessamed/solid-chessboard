@@ -1,6 +1,6 @@
 {
   "name": "solid-chessboard",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A highly customizable, performant chessboard component for SolidJS (based on react-chessboard).",
   "license": "MIT",
   "author": "Zl23Abdessamed",
